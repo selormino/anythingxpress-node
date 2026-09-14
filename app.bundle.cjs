@@ -1,0 +1,6 @@
+'use strict';
+const path=require('path');const fs=require('fs');const nativeRequire=require;const __mods={};const __cache={};
+for(const f of fs.readdirSync(path.join(process.cwd(),'bundle')).filter(x=>/^part-\d+\.json$/.test(x)).sort((a,b)=>Number(a.match(/\d+/)[0])-Number(b.match(/\d+/)[0]))){Object.assign(__mods,JSON.parse(fs.readFileSync(path.join(process.cwd(),'bundle',f),'utf8')))}
+function resolve(from,req){if(!req.startsWith('.'))return null;const base=path.posix.dirname(from),p=path.posix.normalize(path.posix.join(base,req));for(const t of [p,p+'.js',p+'/index.js'])if(__mods[t])return t;throw new Error(`Cannot find local module ${req} from ${from}`)}
+function load(id){if(__cache[id])return __cache[id].exports;const src=__mods[id];if(src==null)throw new Error(`Unknown bundled module ${id}`);const module={exports:{}};__cache[id]=module;const local=req=>{const r=resolve(id,req);return r?load(r):nativeRequire(req)};const fn=new Function('require','module','exports','__filename','__dirname',src);fn(local,module,module.exports,id,path.posix.dirname(id));return module.exports}
+const mode=process.argv[2]||'server',entry={server:'src/server.js',migrate:'scripts/migrate.js','cron:sms':'scripts/process-sms-campaigns.js','cron:whitelist':'scripts/mtn-whitelist-recheck.js'}[mode];if(!entry){console.error('Unknown mode:',mode);process.exit(2)}load(entry);
