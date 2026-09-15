@@ -4,5 +4,5 @@ COPY package.json ./
 RUN npm install --omit=dev --no-audit --no-fund
 COPY . .
 ENV NODE_ENV=production
-EXPOSE 3000
-CMD ["sh","-c","npm run migrate && exec node app.bundle.cjs server"]
+EXPOSE 8080
+CMD ["node","modern-server.cjs"]
